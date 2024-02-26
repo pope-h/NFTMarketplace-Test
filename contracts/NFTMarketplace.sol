@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract NFTMarketplace is ERC721 {
-    using Counters for Counters.Counter;
-
-    Counters.Counter private _tokenIdCounter;
+contract NFTMarketplace is ERC721URIStorage {
+    uint256 private _tokenIdCounter; // Internal counter for token IDs
 
     address payable public owner;
     mapping(uint256 => uint256) public tokenPrices;
@@ -19,13 +16,14 @@ contract NFTMarketplace is ERC721 {
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {
         owner = payable(msg.sender);
+        _tokenIdCounter = 0;
     }
 
     function mintNFT(address recipient, string memory tokenURI) external onlyOwner returns (uint256) {
-        _tokenIdCounter.increment();
-        uint256 newTokenId = _tokenIdCounter.current();
+        _tokenIdCounter++; // Increment the counter
+        uint256 newTokenId = _tokenIdCounter;
         _mint(recipient, newTokenId);
-        _setTokenURI(newTokenId, tokenURI);
+        _setTokenURI(newTokenId, tokenURI); // Set token URI directly within mint
         return newTokenId;
     }
 
